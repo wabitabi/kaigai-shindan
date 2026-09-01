@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自分に合う海外チャレンジ診断</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#2EB4F0;
+    --sky-deep:#0B6FB0;
+    --sky-pale:#EAF8FF;
+    --sun:#FFC93C;
+    --coral:#FF7A59;
+    --white:#FFFFFF;
+    --ink:#0C3A57;
+    --gray:#5D7488;
+    --line:#CFEBFA;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'M PLUS Rounded 1c','Zen Maru Gothic',sans-serif;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(255,255,255,0.55), transparent 45%),
+      radial-gradient(ellipse at 85% 92%, rgba(255,255,255,0.35), transparent 40%),
+      linear-gradient(180deg, #6FD1FF 0%, #2EB4F0 38%, #1497DE 100%);
+    min-height:100vh;
+    color:var(--ink);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---- decorative sky elements ---- */
+  .sky-decor{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+  .cloud{position:absolute; opacity:0.9; animation:drift 60s linear infinite;}
+  .cloud svg{display:block; filter:drop-shadow(0 4px 10px rgba(11,111,176,0.12));}
+  .cloud.c1{top:8%; left:-15%; width:180px; animation-duration:70s;}
+  .cloud.c2{top:20%; left:-20%; width:120px; animation-duration:50s; animation-delay:-15s;}
+  .cloud.c3{top:65%; left:-25%; width:150px; animation-duration:85s; animation-delay:-40s;}
+  .cloud.c4{top:80%; left:-15%; width:100px; animation-duration:55s; animation-delay:-8s;}
+  @keyframes drift{ from{transform:translateX(0);} to{transform:translateX(135vw);} }
+
+  .plane-path{position:absolute; top:12%; left:0; width:100%; height:2px;}
+  .plane{position:absolute; top:10%; left:-6%; font-size:26px; animation:fly 26s linear infinite; filter:drop-shadow(0 3px 6px rgba(11,60,87,0.25));}
+  @keyframes fly{
+    0%{ left:-6%; transform:translateY(0) rotate(8deg);}
+    50%{ left:52%; transform:translateY(-18px) rotate(4deg);}
+    100%{ left:112%; transform:translateY(0) rotate(8deg);}
+  }
+  .dot-route{position:absolute; top:16%; left:0; width:100%; height:40px; border-top:3px dashed rgba(255,255,255,0.55);}
+
+  .stamp{position:absolute; border:3px solid rgba(255,255,255,0.35); border-radius:50%; width:70px; height:70px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:rgba(255,255,255,0.45); transform:rotate(-18deg); letter-spacing:0.05em;}
+  .stamp.s1{top:38%; left:6%;}
+  .stamp.s2{top:70%; right:8%; transform:rotate(14deg);}
+
+  /* ---- app shell ---- */
+  .app{position:relative; z-index:1; max-width:640px; margin:0 auto; padding:28px 18px 60px;}
+
+  .brand{display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:18px;}
+  .brand .badge{
+    background:var(--white); color:var(--sky-deep); font-weight:800; font-size:13px;
+    padding:6px 14px; border-radius:999px; box-shadow:0 4px 14px rgba(11,60,87,0.18);
+    letter-spacing:0.04em; display:flex; align-items:center; gap:6px;
+  }
+
+  .card{
+    background:var(--white);
+    border-radius:26px;
+    padding:32px 26px;
+    box-shadow:0 18px 40px rgba(11,60,87,0.22);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; top:-40px; right:-40px; width:140px; height:140px;
+    background:radial-gradient(circle, rgba(255,201,60,0.35), transparent 70%);
+  }
+
+  /* ---- start screen ---- */
+  .hero-emoji{font-size:52px; text-align:center; margin-bottom:6px;}
+  h1.hero-title{
+    font-family:'Zen Maru Gothic', sans-serif; font-weight:900;
+    font-size:26px; text-align:center; line-height:1.5; color:var(--sky-deep); margin:0 0 10px;
+  }
+  h1.hero-title .hl{color:var(--coral);}
+  p.hero-sub{text-align:center; color:var(--gray); font-size:14.5px; line-height:1.8; margin:0 0 26px;}
+  .hero-badges{display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:28px;}
+  .hero-badges span{
+    background:var(--sky-pale); color:var(--sky-deep); font-size:12px; font-weight:700;
+    padding:6px 12px; border-radius:999px; border:1.5px solid var(--line);
+  }
+  .btn-primary{
+    display:block; width:100%; text-align:center;
+    background:linear-gradient(180deg, var(--sun), #FFB300);
+    color:#7A4B00; font-weight:800; font-size:17px;
+    border:none; border-radius:18px; padding:16px 20px; cursor:pointer;
+    box-shadow:0 10px 0 #E39A00, 0 16px 24px rgba(227,154,0,0.35);
+    transition:transform 0.08s ease;
+    font-family:inherit;
+  }
+  .btn-primary:active{transform:translateY(6px); box-shadow:0 4px 0 #E39A00, 0 8px 16px rgba(227,154,0,0.3);}
+  .btn-secondary{
+    display:block; width:100%; text-align:center; margin-top:12px;
+    background:var(--white); color:var(--sky-deep); font-weight:700; font-size:15px;
+    border:2px solid var(--line); border-radius:16px; padding:13px 18px; cursor:pointer;
+    font-family:inherit;
+  }
+
+  /* ---- progress ---- */
+  .progress-wrap{display:flex; align-items:center; gap:10px; margin-bottom:22px;}
+  .progress-label{font-size:12px; font-weight:800; color:var(--sky-deep); white-space:nowrap; background:var(--sky-pale); padding:5px 10px; border-radius:999px;}
+  .progress-track{flex:1; height:10px; background:var(--sky-pale); border-radius:999px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg, var(--sun), var(--coral)); border-radius:999px; transition:width 0.4s ease;}
+
+  .q-text{
+    font-family:'Zen Maru Gothic', sans-serif; font-weight:700; font-size:19px;
+    line-height:1.6; color:var(--ink); margin:0 0 22px;
+  }
+  .options{display:flex; flex-direction:column; gap:11px;}
+  .option-btn{
+    text-align:left; background:var(--sky-pale); border:2px solid transparent;
+    border-radius:16px; padding:14px 16px; font-size:14.5px; font-weight:600; color:var(--ink);
+    cursor:pointer; transition:all 0.15s ease; font-family:inherit; line-height:1.55;
+    display:flex; align-items:center; gap:10px;
+  }
+  .option-btn:hover{border-color:var(--sky); background:#DEF3FF; transform:translateX(2px);}
+  .option-btn .letter{
+    flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--white);
+    color:var(--sky-deep); font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 4px rgba(11,60,87,0.15);
+  }
+
+  /* ---- boarding pass result ---- */
+  .pass{
+    background:linear-gradient(135deg, var(--sky-deep), var(--sky));
+    border-radius:22px; color:#fff; padding:0; overflow:hidden; margin-bottom:18px;
+    box-shadow:0 14px 30px rgba(11,60,87,0.3);
+  }
+  .pass-top{padding:20px 22px 16px;}
+  .pass-eyebrow{font-size:11px; font-weight:800; letter-spacing:0.14em; color:#CDEEFF; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;}
+  .pass-eyebrow .plane-mini{font-size:14px;}
+  .pass-type{font-family:'Zen Maru Gothic',sans-serif; font-weight:900; font-size:24px; line-height:1.4;}
+  .pass-sub{font-size:12.5px; color:#DDF3FF; margin-top:6px; line-height:1.7;}
+  .pass-divider{
+    position:relative; height:0; border-top:2.5px dashed rgba(255,255,255,0.45); margin:0 22px;
+  }
+  .pass-divider::before,.pass-divider::after{
+    content:""; position:absolute; top:-11px; width:22px; height:22px; background:var(--sky-pale); border-radius:50%;
+  }
+  .pass-divider::before{left:-33px;}
+  .pass-divider::after{right:-33px;}
+  .pass-bottom{padding:16px 22px 22px; display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+  .pass-field{font-size:10.5px; color:#CDEEFF; font-weight:700; letter-spacing:0.06em;}
+  .pass-field b{display:block; font-size:15px; color:#fff; margin-top:3px; font-family:'Zen Maru Gothic',sans-serif;}
+
+  .result-desc-card{
+    background:var(--sky-pale); border-radius:18px; padding:18px 20px; margin-bottom:18px;
+    font-size:13.5px; line-height:1.85; color:var(--ink);
+  }
+  .result-desc-card .lbl{font-size:11px; font-weight:800; color:var(--coral); letter-spacing:0.05em; margin-bottom:6px; display:block;}
+
+  .type-pick-grid{display:flex; flex-direction:column; gap:10px; margin-bottom:6px;}
+  .type-pick-btn{
+    background:var(--white); border:2px solid var(--line); border-radius:16px;
+    padding:14px 16px; text-align:left; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; gap:12px; transition:all 0.15s ease;
+  }
+  .type-pick-btn:hover{border-color:var(--sky); background:var(--sky-pale);}
+  .type-pick-btn .emoji{font-size:26px;}
+  .type-pick-btn .name{font-weight:800; font-size:15px; color:var(--sky-deep); font-family:'Zen Maru Gothic',sans-serif;}
+
+  .footer-note{text-align:center; color:rgba(255,255,255,0.85); font-size:11.5px; margin-top:22px; line-height:1.7;}
+  .footer-note a{color:#fff; font-weight:700;}
+
+  @media (max-width:420px){
+    .card{padding:26px 18px;}
+    h1.hero-title{font-size:22px;}
+    .pass-type{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sky-decor">
+  <div class="dot-route"></div>
+  <div class="plane">✈️</div>
+  <div class="cloud c1"><svg viewBox="0 0 200 100" width="180"><path d="M30 70 Q10 70 10 55 Q10 40 28 40 Q30 20 55 20 Q78 20 82 38 Q100 35 105 52 Q120 52 120 65 Q120 78 105 78 L35 78 Q30 78 30 70Z" fill="#fff"/></svg></div>
+  <div class="cloud c2"><svg viewBox="0 0 200 100" width="120"><path d="M30 70 Q10 70 10 55 Q10 40 28 40 Q30 20 55 20 Q78 20 82 38 Q100 35 105 52 Q120 52 120 65 Q120 78 105 78 L35 78 Q30 78 30 70Z" fill="#fff"/></svg></div>
+  <div class="cloud c3"><svg viewBox="0 0 200 100" width="150"><path d="M30 70 Q10 70 10 55 Q10 40 28 40 Q30 20 55 20 Q78 20 82 38 Q100 35 105 52 Q120 52 120 65 Q120 78 105 78 L35 78 Q30 78 30 70Z" fill="#fff"/></svg></div>
+  <div class="cloud c4"><svg viewBox="0 0 200 100" width="100"><path d="M30 70 Q10 70 10 55 Q10 40 28 40 Q30 20 55 20 Q78 20 82 38 Q100 35 105 52 Q120 52 120 65 Q120 78 105 78 L35 78 Q30 78 30 70Z" fill="#fff"/></svg></div>
+  <div class="stamp s1">TRAVEL</div>
+  <div class="stamp s2">WORLD</div>
+</div>
+
+<div class="app">
+  <div class="brand"><span class="badge">✈️ 海外チャレンジ診断</span></div>
+  <div class="card" id="card"></div>
+  <div class="footer-note" id="footerNote"></div>
+</div>
+
+<script>
+/* ====================== DATA ====================== */
+
+const TYPE_KEYS = ['university','language','workingholiday','solotrip','volunteer','internship'];
+
+const TYPE_META = {
+  university:    { label:'海外大学進学',   emoji:'🎓', code:'UNI' },
+  language:      { label:'語学留学',       emoji:'📚', code:'LNG' },
+  workingholiday:{ label:'ワーホリ',       emoji:'🧳', code:'WH' },
+  solotrip:      { label:'一人旅',         emoji:'🗺️', code:'SOLO' },
+  volunteer:     { label:'海外ボランティア', emoji:'🤝', code:'VOL' },
+  internship:    { label:'海外インターン', emoji:'💼', code:'INT' },
+};
+
+const TYPE_RESULT_DESC = {
+  university: 'じっくり時間をかけて、専門性を積み上げたいタイプ。海外の大学で学位を取ることが、将来の大きな武器になります。',
+  language: '効率よく語学力を伸ばしたいタイプ。まとまった期間、学びに集中する経験がぴったりです。',
+  workingholiday: '「暮らすように挑戦したい」タイプ。働きながら現地に溶け込む中で、自分で生活をつくる力が育ちます。',
+  solotrip: '誰にも縛られず、自分のペースで動きたいタイプ。一人旅で得る気づきが、これからの視野を広げます。',
+  volunteer: '誰かの役に立つ経験を大事にしたいタイプ。現地に根を張って関わる中で、社会を見る目が変わります。',
+  internship: '実務のスキルや経験を積みたいタイプ。海外の仕事の現場に飛び込むことで、将来のキャリアに直結する力がつきます。',
+};
+
+// Q1〜Q6 for type diagnosis. Each option maps to one type.
+const TYPE_QUESTIONS = [
+  {
+    text: 'Q1. 海外挑戦で一番惹かれるのは？',
+    options: [
+      { label:'現地の大学で本格的に学位を取りたい', type:'university' },
+      { label:'効率よく語学力を伸ばしたい', type:'language' },
+      { label:'働きながら現地の生活に溶け込みたい', type:'workingholiday' },
+      { label:'誰にも縛られず自由に旅をしたい', type:'solotrip' },
+      { label:'誰かの役に立つ経験がしたい', type:'volunteer' },
+      { label:'仕事のスキルや経験を積みたい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q2. どのくらいの期間を想定していますか？',
+    options: [
+      { label:'数年単位で腰を据えて', type:'university' },
+      { label:'数週間〜数ヶ月、集中して', type:'language' },
+      { label:'半年〜1年、生活しながら', type:'workingholiday' },
+      { label:'数週間、身軽に動ける範囲で', type:'solotrip' },
+      { label:'数週間〜数ヶ月、現地に根を張って', type:'volunteer' },
+      { label:'1〜3ヶ月、実務に集中して', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q3. 現地でどんな1日を過ごしたい？',
+    options: [
+      { label:'授業を受けて課題に取り組む学生生活', type:'university' },
+      { label:'語学学校のクラスで仲間と学ぶ', type:'language' },
+      { label:'仕事をして、休日は自由に過ごす', type:'workingholiday' },
+      { label:'決まった予定なく、行きたい場所に行く', type:'solotrip' },
+      { label:'現地の人と一緒に作業したり関わったりする', type:'volunteer' },
+      { label:'オフィスやチームで実務をこなす', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q4. 海外での経験を将来どう活かしたい？',
+    options: [
+      { label:'専門知識や学歴として積み上げたい', type:'university' },
+      { label:'語学力を武器にしたい', type:'language' },
+      { label:'「自分で生活を作れた」という自信にしたい', type:'workingholiday' },
+      { label:'自分の価値観を広げるきっかけにしたい', type:'solotrip' },
+      { label:'社会貢献の経験として語れるようにしたい', type:'volunteer' },
+      { label:'就職やキャリアに直結させたい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q5. お金の使い方について、しっくりくるのは？',
+    options: [
+      { label:'学費として大きく投資する', type:'university' },
+      { label:'まとまった費用を学びに使う', type:'language' },
+      { label:'現地で働いて稼ぎながら生活費をまかなう', type:'workingholiday' },
+      { label:'できるだけ低予算で身軽に行きたい', type:'solotrip' },
+      { label:'費用より「役に立てるか」を大事にしたい', type:'volunteer' },
+      { label:'無給でも実務経験を優先したい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q6. 一緒に過ごしたい人は？',
+    options: [
+      { label:'同じ目標を持つ学生仲間', type:'university' },
+      { label:'世界中から集まる留学生仲間', type:'language' },
+      { label:'現地の同僚や友人', type:'workingholiday' },
+      { label:'誰かというより自分自身と向き合う時間', type:'solotrip' },
+      { label:'現地のコミュニティや支援対象の人々', type:'volunteer' },
+      { label:'職場のチームメンバー', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q7. 海外に行くことを、家族や友人にどう伝えたい？',
+    options: [
+      { label:'「学位を取るために行く」ときちんと説明したい', type:'university' },
+      { label:'「語学力を伸ばすために行く」と伝えたい', type:'language' },
+      { label:'「働きながら生活してみる」と伝えたい', type:'workingholiday' },
+      { label:'「とりあえず旅に出る」とだけ伝えたい', type:'solotrip' },
+      { label:'「誰かの役に立ちに行く」と伝えたい', type:'volunteer' },
+      { label:'「スキルを積みに行く」と伝えたい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q8. 挑戦したあと、周りにどう思われたい？',
+    options: [
+      { label:'専門性のある人だと思われたい', type:'university' },
+      { label:'語学が堪能な人だと思われたい', type:'language' },
+      { label:'たくましく自立した人だと思われたい', type:'workingholiday' },
+      { label:'自由な生き方をしている人だと思われたい', type:'solotrip' },
+      { label:'人のために動ける人だと思われたい', type:'volunteer' },
+      { label:'実務ができる人だと思われたい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q9. 今、一番強く感じているのは？',
+    options: [
+      { label:'専門的に学びたいという気持ち', type:'university' },
+      { label:'語学力にコンプレックスがある', type:'language' },
+      { label:'自立して生きていく力をつけたい', type:'workingholiday' },
+      { label:'今の環境から抜け出したい', type:'solotrip' },
+      { label:'誰かの役に立ちたいという気持ち', type:'volunteer' },
+      { label:'実践的な力を身につけたい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q10. 挑戦を終えたあと、次にやりたいことは？',
+    options: [
+      { label:'大学院やさらに上の学びに進みたい', type:'university' },
+      { label:'学んだ語学を使う機会を作りたい', type:'language' },
+      { label:'得た経験をもとに働き方を考えたい', type:'workingholiday' },
+      { label:'次はまた別の場所に旅立ちたい', type:'solotrip' },
+      { label:'継続的に社会貢献に関わりたい', type:'volunteer' },
+      { label:'就職やキャリアに直結させたい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q11. 挑戦するかどうかを決めるとき、一番大事にする判断基準は？',
+    options: [
+      { label:'データや実績に基づいて堅実に選びたい', type:'university' },
+      { label:'効率よく身につくかを重視したい', type:'language' },
+      { label:'自由さや裁量の大きさを重視したい', type:'workingholiday' },
+      { label:'直感やその場のワクワクを大事にしたい', type:'solotrip' },
+      { label:'「誰かの役に立てるか」を軸に考えたい', type:'volunteer' },
+      { label:'成長につながるかを重視したい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q12. 今、心の中で一番強く感じている感情は？',
+    options: [
+      { label:'知的好奇心が満たされていないもどかしさ', type:'university' },
+      { label:'語学力へのコンプレックス', type:'language' },
+      { label:'今の環境から抜け出したい焦り', type:'workingholiday' },
+      { label:'漠然とした憧れ・ワクワク', type:'solotrip' },
+      { label:'誰かの力になれていない歯がゆさ', type:'volunteer' },
+      { label:'実践経験が足りていない焦り', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q13. 過去にうまくいった挑戦を振り返ると、どんなスタイルだった？',
+    options: [
+      { label:'コツコツ積み上げて成果を出した', type:'university' },
+      { label:'繰り返し練習して身につけた', type:'language' },
+      { label:'一人でやり切って自信がついた', type:'workingholiday' },
+      { label:'思いつきで動いたらうまくいった', type:'solotrip' },
+      { label:'誰かと協力して乗り越えた', type:'volunteer' },
+      { label:'実践しながら覚えていった', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q14. 挑戦する上で、一番不安に感じるのは？',
+    options: [
+      { label:'周りに置いていかれること', type:'university' },
+      { label:'語学力が足りないこと', type:'language' },
+      { label:'生活基盤を自分で作れるか', type:'workingholiday' },
+      { label:'孤独になること', type:'solotrip' },
+      { label:'自分が役に立てないかもしれないこと', type:'volunteer' },
+      { label:'成果や結果が出せるか', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q15. 憧れるのはどんな人？',
+    options: [
+      { label:'専門性を極めた研究者・専門家', type:'university' },
+      { label:'多言語を操る人', type:'language' },
+      { label:'自由に生きるバックパッカー・旅人', type:'workingholiday' },
+      { label:'現地に根を張ってたくましく働く人', type:'solotrip' },
+      { label:'困っている人にそっと寄り添う人', type:'volunteer' },
+      { label:'バリバリ結果を出すビジネスパーソン', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q16. 挑戦を終えた後、どんな自分になっていたい？',
+    options: [
+      { label:'知識を極めた自分', type:'university' },
+      { label:'語学が堪能な自分', type:'language' },
+      { label:'視野が広がった自分', type:'workingholiday' },
+      { label:'自由な生き方をしている自分', type:'solotrip' },
+      { label:'誰かの力になれた自分', type:'volunteer' },
+      { label:'実践力のある自分', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q17. どのくらいサポートがあると安心する？',
+    options: [
+      { label:'学校や機関の体系立ったサポートが欲しい', type:'university' },
+      { label:'先生やクラスメイトのサポートが欲しい', type:'language' },
+      { label:'最低限で、あとは自分でやりたい', type:'workingholiday' },
+      { label:'サポートなしで自由にやりたい', type:'solotrip' },
+      { label:'現地コミュニティに支えてほしい', type:'volunteer' },
+      { label:'チームや会社のサポートが欲しい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q18. 今の自分の中にある「課題」だと感じているのは？',
+    options: [
+      { label:'専門性の不足', type:'university' },
+      { label:'語学力の不足', type:'language' },
+      { label:'経済的な自立への不安', type:'workingholiday' },
+      { label:'視野の狭さ', type:'solotrip' },
+      { label:'自己中心的になっていないかという不安', type:'volunteer' },
+      { label:'実践経験の不足', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q19. エネルギーをどう使いたい？',
+    options: [
+      { label:'学業にとことん振り切りたい', type:'university' },
+      { label:'語学学習に振り切りたい', type:'language' },
+      { label:'仕事と生活の両立に使いたい', type:'workingholiday' },
+      { label:'好奇心の赴くままに使いたい', type:'solotrip' },
+      { label:'人のために使いたい', type:'volunteer' },
+      { label:'実務スキルの向上に使いたい', type:'internship' },
+    ]
+  },
+  {
+    text: 'Q20. この挑戦を、人生の中でどう位置づけたい？',
+    options: [
+      { label:'将来の土台となる基礎固め', type:'university' },
+      { label:'コミュニケーションツールの獲得', type:'language' },
+      { label:'自立した大人になる通過点', type:'workingholiday' },
+      { label:'人生観を変えるターニングポイント', type:'solotrip' },
+      { label:'生き方の軸となる原体験', type:'volunteer' },
+      { label:'キャリアのスタートライン', type:'internship' },
+    ]
+  },
+];
+
+/* Country diagnosis data per type: 5 questions, each option scores countries */
+const COUNTRY_DATA = {
+  university: {
+    countries: ['アメリカ','イギリス','オーストラリア・カナダ','ヨーロッパ'],
+    desc: {
+      'アメリカ':'都会のエネルギーと多様な学問環境。学費は高めですが、卒業後の現地就職の道も開けています。',
+      'イギリス':'伝統と歴史を感じる学びの環境。多国籍な学生に囲まれながら、じっくり専門性を積み上げられます。',
+      'オーストラリア・カナダ':'都会も自然も両方楽しめるバランス型。移民国家ならではの、現地就職のしやすさも魅力。',
+      'ヨーロッパ':'学費を抑えながら、英語以外の言語や文化にも挑戦できる環境。伝統的な学びの空気が根付いています。',
+    },
+    questions: [
+      { text:'学費は思い切りかけられる？それとも抑えたい？', options:[
+        { label:'思い切りかけられる', scores:{'アメリカ':2,'イギリス':2} },
+        { label:'できれば抑えたい', scores:{'オーストラリア・カナダ':2,'ヨーロッパ':2} },
+      ]},
+      { text:'どんな環境で学びたい？', options:[
+        { label:'エネルギッシュな都会型', scores:{'アメリカ':2} },
+        { label:'伝統・歴史を感じる環境', scores:{'イギリス':2,'ヨーロッパ':1} },
+        { label:'都会も自然もどちらも', scores:{'オーストラリア・カナダ':2} },
+      ]},
+      { text:'卒業後のイメージは？', options:[
+        { label:'現地就職も視野に入れたい', scores:{'アメリカ':1,'オーストラリア・カナダ':2} },
+        { label:'学んだあと日本に帰る前提', scores:{'イギリス':1,'ヨーロッパ':2} },
+      ]},
+      { text:'言語について', options:[
+        { label:'英語だけで学びたい', scores:{'アメリカ':1,'イギリス':1,'オーストラリア・カナダ':1} },
+        { label:'新しい言語にも挑戦したい', scores:{'ヨーロッパ':2} },
+      ]},
+      { text:'どんな学生に囲まれたい？', options:[
+        { label:'多国籍な学生に囲まれたい', scores:{'イギリス':1,'オーストラリア・カナダ':1} },
+        { label:'その国らしい環境で学びたい', scores:{'アメリカ':1,'ヨーロッパ':1} },
+      ]},
+      { text:'授業スタイルの好みは？', options:[
+        { label:'ディスカッション中心の少人数制', scores:{'イギリス':2,'ヨーロッパ':2} },
+        { label:'実践重視で大規模な講義', scores:{'アメリカ':2,'オーストラリア・カナダ':2} },
+      ]},
+      { text:'キャンパスライフに求めるのは？', options:[
+        { label:'都会の中で刺激的に過ごしたい', scores:{'アメリカ':2} },
+        { label:'落ち着いた学術都市で過ごしたい', scores:{'イギリス':2,'ヨーロッパ':1} },
+        { label:'自然と都会のバランスが良い場所', scores:{'オーストラリア・カナダ':2} },
+      ]},
+      { text:'生活費の感覚は？', options:[
+        { label:'高くてもあまり気にしない', scores:{'アメリカ':1,'イギリス':1} },
+        { label:'できれば抑えたい', scores:{'オーストラリア・カナダ':1,'ヨーロッパ':2} },
+      ]},
+    ]
+  },
+  language: {
+    countries: ['フィリピン（セブ）','マルタ','カナダ','オーストラリア','イギリス','アメリカ'],
+    desc: {
+      'フィリピン（セブ）':'低予算でスパルタに学べる環境。初心者がゼロから鍛えるのにぴったりのリゾート地。',
+      'マルタ':'地中海のリゾート感を楽しみながら、バランスよく学べる環境。ヨーロッパ周遊の拠点にも。',
+      'カナダ':'都会で実践的に学べる環境。四季を感じながら、中級〜上級者がじっくり伸ばすのに向いています。',
+      'オーストラリア':'温暖な気候の中、都会も自然も選べる懐の広さ。初心者から上級者まで幅広く対応。',
+      'イギリス':'伝統ある学びの本場。本格的に英語を鍛えたい、ある程度自信のある人向け。',
+      'アメリカ':'実践的な英語環境に飛び込みたい人向け。都会で刺激を受けながら力試しができます。',
+    },
+    questions: [
+      { text:'予算は抑えたい？思い切りかけたい？', options:[
+        { label:'抑えたい', scores:{'フィリピン（セブ）':2,'マルタ':2} },
+        { label:'思い切りかけたい', scores:{'カナダ':1,'オーストラリア':1,'イギリス':1,'アメリカ':1} },
+      ]},
+      { text:'学び方のスタイルは？', options:[
+        { label:'みっちり勉強重視', scores:{'フィリピン（セブ）':2,'イギリス':1,'アメリカ':1} },
+        { label:'生活も楽しむバランス型', scores:{'マルタ':2,'カナダ':1,'オーストラリア':1} },
+      ]},
+      { text:'過ごしたい雰囲気は？', options:[
+        { label:'リゾート感覚でのんびり', scores:{'フィリピン（セブ）':1,'マルタ':1,'オーストラリア':1} },
+        { label:'都会で刺激を受けながら', scores:{'カナダ':1,'イギリス':1,'アメリカ':1} },
+      ]},
+      { text:'気候の好みは？', options:[
+        { label:'暖かい気候がいい', scores:{'フィリピン（セブ）':1,'マルタ':1,'オーストラリア':1} },
+        { label:'四季を感じたい', scores:{'カナダ':1,'イギリス':1,'アメリカ':1} },
+      ]},
+      { text:'今の英語力は？', options:[
+        { label:'初心者', scores:{'フィリピン（セブ）':2,'マルタ':1} },
+        { label:'日常会話はなんとかできる', scores:{'オーストラリア':2,'カナダ':2} },
+        { label:'ある程度自信がある', scores:{'イギリス':2,'アメリカ':2} },
+      ]},
+      { text:'放課後の過ごし方は？', options:[
+        { label:'自習してとにかく詰め込みたい', scores:{'フィリピン（セブ）':2,'イギリス':1} },
+        { label:'現地の人と交流して自然に学びたい', scores:{'マルタ':1,'オーストラリア':2,'アメリカ':1} },
+        { label:'観光やアクティビティも楽しみたい', scores:{'マルタ':2,'カナダ':2} },
+      ]},
+      { text:'クラスの人数は？', options:[
+        { label:'マンツーマンでしっかり見てほしい', scores:{'フィリピン（セブ）':2} },
+        { label:'少人数でバランスよく', scores:{'マルタ':2,'カナダ':2} },
+        { label:'多国籍な大人数クラスでもいい', scores:{'オーストラリア':1,'イギリス':1,'アメリカ':1} },
+      ]},
+      { text:'留学後の目標は？', options:[
+        { label:'日常会話に困らないレベルになりたい', scores:{'フィリピン（セブ）':1,'マルタ':2} },
+        { label:'ビジネスで使えるレベルにしたい', scores:{'カナダ':2,'オーストラリア':1} },
+        { label:'ネイティブ相当に近づけたい', scores:{'イギリス':2,'アメリカ':2} },
+      ]},
+    ]
+  },
+  workingholiday: {
+    countries: ['オーストラリア','カナダ','ニュージーランド','韓国','ヨーロッパ（スペイン・ドイツなど）'],
+    desc: {
+      'オーストラリア':'稼ぎながら都会のエネルギーを満喫できる、ワーホリ定番の国。温暖な気候も魅力。',
+      'カナダ':'都会も自然も選べる懐の広さ。四季を感じながら本格的に英語力を伸ばせます。',
+      'ニュージーランド':'自然の中でゆったりと、生活の充実度を大事にしたい人向け。',
+      '韓国':'文化的な親しみやすさと気候の穏やかさ、日本人コミュニティの安心感がある選択肢。',
+      'ヨーロッパ（スペイン・ドイツなど）':'英語以外の言語や文化にどっぷり浸かりたい人向け。日本人が少ない環境に飛び込みたい人にも。',
+    },
+    questions: [
+      { text:'過ごしたい環境は？', options:[
+        { label:'大都市で刺激的に', scores:{'オーストラリア':2,'韓国':2} },
+        { label:'自然の中でゆったり', scores:{'ニュージーランド':2,'カナダ':1,'ヨーロッパ（スペイン・ドイツなど）':1} },
+      ]},
+      { text:'大事にしたいことは？', options:[
+        { label:'稼ぐこと', scores:{'オーストラリア':2,'カナダ':2} },
+        { label:'生活の充実度', scores:{'ニュージーランド':2,'ヨーロッパ（スペイン・ドイツなど）':1,'韓国':1} },
+      ]},
+      { text:'言語について', options:[
+        { label:'英語をがっつり伸ばしたい', scores:{'オーストラリア':1,'カナダ':1,'ニュージーランド':1} },
+        { label:'英語以外の言語・文化にも触れたい', scores:{'ヨーロッパ（スペイン・ドイツなど）':2,'韓国':1} },
+      ]},
+      { text:'気候の好みは？', options:[
+        { label:'温暖な方がいい', scores:{'オーストラリア':1,'ニュージーランド':1} },
+        { label:'四季をしっかり感じたい', scores:{'カナダ':1,'韓国':1,'ヨーロッパ（スペイン・ドイツなど）':1} },
+      ]},
+      { text:'周りの環境は？', options:[
+        { label:'日本人が少ない環境に飛び込みたい', scores:{'ヨーロッパ（スペイン・ドイツなど）':2,'カナダ':1} },
+        { label:'日本人コミュニティもあると安心', scores:{'オーストラリア':1,'韓国':2,'ニュージーランド':1} },
+      ]},
+      { text:'仕事探しについて', options:[
+        { label:'求人が多く仕事を見つけやすい方がいい', scores:{'オーストラリア':2,'カナダ':2} },
+        { label:'じっくり探しても良い', scores:{'ニュージーランド':1,'ヨーロッパ（スペイン・ドイツなど）':2,'韓国':1} },
+      ]},
+      { text:'休日の過ごし方は？', options:[
+        { label:'大自然にアクセスしやすい方がいい', scores:{'ニュージーランド':2,'カナダ':1} },
+        { label:'都市の文化やグルメを楽しみたい', scores:{'オーストラリア':1,'韓国':2,'ヨーロッパ（スペイン・ドイツなど）':1} },
+      ]},
+      { text:'ワーホリ後のイメージは？', options:[
+        { label:'貯金や実績を持って帰りたい', scores:{'オーストラリア':2,'カナダ':2} },
+        { label:'とにかく現地の暮らしを満喫したい', scores:{'ニュージーランド':2,'ヨーロッパ（スペイン・ドイツなど）':2,'韓国':1} },
+      ]},
+    ]
+  },
+  solotrip: {
+    countries: ['東南アジア','ヨーロッパ','南米','インド','中東・アフリカ'],
+    desc: {
+      '東南アジア':'一人旅デビューにぴったり。快適さと親しみやすさのバランスが良く、自然も豊か。',
+      'ヨーロッパ':'歴史とアートに触れる旅。快適に異文化を楽しみたい人に向いています。',
+      '南米':'絶景とダイナミックな自然を求める人向け。ある程度旅慣れた人におすすめ。',
+      'インド':'人との出会いと強いカルチャーショックを求める人向け。低予算でも濃い経験ができます。',
+      '中東・アフリカ':'上級者向けの旅先。強い刺激と、文化的な発見を求める人にぴったり。',
+    },
+    questions: [
+      { text:'一人旅の経験は？', options:[
+        { label:'初めて', scores:{'東南アジア':2,'ヨーロッパ':2} },
+        { label:'慣れている', scores:{'南米':2,'インド':2,'中東・アフリカ':2} },
+      ]},
+      { text:'大事にしたいのは？', options:[
+        { label:'治安や快適さ', scores:{'東南アジア':2,'ヨーロッパ':2} },
+        { label:'多少の不便さも冒険として', scores:{'南米':2,'インド':2,'中東・アフリカ':2} },
+      ]},
+      { text:'求めているのは？', options:[
+        { label:'強い刺激・カルチャーショック', scores:{'インド':2,'中東・アフリカ':2,'南米':1} },
+        { label:'穏やかに異文化を楽しみたい', scores:{'東南アジア':2,'ヨーロッパ':2} },
+      ]},
+      { text:'予算感は？', options:[
+        { label:'抑えたい', scores:{'東南アジア':2,'インド':2} },
+        { label:'多少かけてもいい', scores:{'ヨーロッパ':2,'南米':1,'中東・アフリカ':1} },
+      ]},
+      { text:'一番惹かれるのは？', options:[
+        { label:'自然・絶景', scores:{'南米':2,'中東・アフリカ':1} },
+        { label:'歴史・アート', scores:{'ヨーロッパ':2} },
+        { label:'人との出会い', scores:{'東南アジア':1,'インド':2} },
+      ]},
+      { text:'移動手段の好みは？', options:[
+        { label:'電車やバスでのんびり移動したい', scores:{'ヨーロッパ':2,'東南アジア':2} },
+        { label:'多少ハードな移動も気にしない', scores:{'南米':2,'インド':2,'中東・アフリカ':2} },
+      ]},
+      { text:'宿泊スタイルは？', options:[
+        { label:'快適なホテルやゲストハウスがいい', scores:{'ヨーロッパ':2,'東南アジア':2} },
+        { label:'ドミトリーやローカルな宿でもいい', scores:{'南米':2,'インド':2,'中東・アフリカ':2} },
+      ]},
+      { text:'旅先で大事にしたい時間は？', options:[
+        { label:'カフェや街歩きでのんびり過ごす時間', scores:{'ヨーロッパ':2,'東南アジア':2} },
+        { label:'現地の人との濃い関わり', scores:{'インド':2,'中東・アフリカ':2} },
+        { label:'大自然の中で過ごす時間', scores:{'南米':2} },
+      ]},
+    ]
+  },
+  volunteer: {
+    countries: ['カンボジア','ネパール','インド','アフリカ','フィジー','インドネシア'],
+    desc: {
+      'カンボジア':'教育支援を中心に、比較的整った環境で活動できます。短期の参加にも向いています。',
+      'ネパール':'山岳の自然に囲まれた地域開発の現場。じっくり長期で関わりたい人向け。',
+      'インド':'多様な社会課題に触れられる懐の深さ。長期でどっぷり関わりたい人におすすめ。',
+      'アフリカ':'地域開発・医療福祉など、幅広いテーマに挑戦できる場所。ある程度の耐性が必要です。',
+      'フィジー':'島と海に近い環境で、環境保全や地域コミュニティ支援に関わりたい人向け。短期でも参加しやすい。',
+      'インドネシア':'島嶼部の多様な環境で、教育・地域支援に関われます。短期〜長期どちらにも対応。',
+    },
+    questions: [
+      { text:'関わりたい分野は？', options:[
+        { label:'子どもの教育', scores:{'カンボジア':2,'インド':1} },
+        { label:'地域のインフラ・環境', scores:{'ネパール':2,'アフリカ':2,'フィジー':1,'インドネシア':1} },
+      ]},
+      { text:'生活環境について', options:[
+        { label:'多少不便でも平気', scores:{'ネパール':2,'インド':2,'アフリカ':2} },
+        { label:'ある程度整った環境がいい', scores:{'カンボジア':2,'フィジー':2,'インドネシア':1} },
+      ]},
+      { text:'活動する場所のイメージは？', options:[
+        { label:'山岳・自然に近い環境', scores:{'ネパール':2} },
+        { label:'島・海に近い環境', scores:{'フィジー':2,'インドネシア':2} },
+        { label:'都市近郊で活動したい', scores:{'カンボジア':1,'インド':1,'アフリカ':1} },
+      ]},
+      { text:'期間のイメージは？', options:[
+        { label:'短期集中で成果を出したい', scores:{'カンボジア':1,'フィジー':1} },
+        { label:'長期でじっくり関わりたい', scores:{'ネパール':2,'インド':2,'アフリカ':2,'インドネシア':1} },
+      ]},
+      { text:'求めているのは？', options:[
+        { label:'一つの文化に深く関わりたい', scores:{'ネパール':1,'フィジー':1} },
+        { label:'多様な文化圏を見てみたい', scores:{'インド':2,'アフリカ':1,'インドネシア':2,'カンボジア':1} },
+      ]},
+      { text:'チームでの活動は？', options:[
+        { label:'他国のボランティアと一緒だと心強い', scores:{'カンボジア':2,'フィジー':2,'インドネシア':1} },
+        { label:'現地スタッフと直接関わりたい', scores:{'ネパール':2,'インド':2,'アフリカ':2} },
+      ]},
+      { text:'語学力について', options:[
+        { label:'英語にあまり自信がない', scores:{'カンボジア':2,'フィジー':1} },
+        { label:'ある程度英語でやり取りできる', scores:{'ネパール':1,'インド':2,'アフリカ':2,'インドネシア':1} },
+      ]},
+      { text:'活動後に持ち帰りたいものは？', options:[
+        { label:'教育支援の具体的なノウハウ', scores:{'カンボジア':2,'インド':1} },
+        { label:'タフな環境で動き切った自信', scores:{'ネパール':2,'アフリカ':2} },
+        { label:'多様な文化への理解', scores:{'フィジー':2,'インドネシア':2} },
+      ]},
+    ]
+  },
+  internship: {
+    countries: ['ベトナム','シンガポール','インド','アメリカ・ヨーロッパ'],
+    desc: {
+      'ベトナム':'成長中のスタートアップで、新興国のエネルギーを感じながら実務経験を積める環境。生活コストも抑えられます。',
+      'シンガポール':'大手グローバル企業で、整った先進国の環境で実務に挑戦したい人向け。',
+      'インド':'テック分野を中心に、新興国のスピード感の中で力を試したい人向け。',
+      'アメリカ・ヨーロッパ':'最先端のテックや金融ビジネスの現場に挑戦したい、英語力に自信のある人向け。',
+    },
+    questions: [
+      { text:'働く環境のイメージは？', options:[
+        { label:'急成長中のスタートアップ', scores:{'ベトナム':2,'インド':2} },
+        { label:'大手グローバル企業', scores:{'シンガポール':2,'アメリカ・ヨーロッパ':2} },
+      ]},
+      { text:'求める空気感は？', options:[
+        { label:'新興国のエネルギー', scores:{'ベトナム':2,'インド':2} },
+        { label:'先進国の整った環境', scores:{'シンガポール':2,'アメリカ・ヨーロッパ':2} },
+      ]},
+      { text:'生活コストについて', options:[
+        { label:'抑えたい', scores:{'ベトナム':2,'インド':2} },
+        { label:'多少かかってもいい', scores:{'シンガポール':2,'アメリカ・ヨーロッパ':2} },
+      ]},
+      { text:'英語力について', options:[
+        { label:'まだ自信がない', scores:{'ベトナム':2} },
+        { label:'試してみたい', scores:{'シンガポール':2,'インド':1,'アメリカ・ヨーロッパ':2} },
+      ]},
+      { text:'将来つなげたい分野は？', options:[
+        { label:'社会課題解決系', scores:{'ベトナム':2,'インド':1} },
+        { label:'金融・ビジネス系', scores:{'シンガポール':2,'アメリカ・ヨーロッパ':1} },
+        { label:'テック系', scores:{'インド':2,'アメリカ・ヨーロッパ':2,'シンガポール':1} },
+      ]},
+      { text:'会社の規模感は？', options:[
+        { label:'少人数でスピード感のある環境', scores:{'ベトナム':2,'インド':2} },
+        { label:'組織立った環境でしっかり学びたい', scores:{'シンガポール':2,'アメリカ・ヨーロッパ':2} },
+      ]},
+      { text:'生活環境について', options:[
+        { label:'多少不便でも気にしない', scores:{'ベトナム':2,'インド':2} },
+        { label:'整った生活環境がいい', scores:{'シンガポール':2,'アメリカ・ヨーロッパ':2} },
+      ]},
+      { text:'インターン後のキャリアイメージは？', options:[
+        { label:'新興国のビジネスに関わり続けたい', scores:{'ベトナム':2,'インド':2} },
+        { label:'グローバル企業でキャリアを積みたい', scores:{'シンガポール':2,'アメリカ・ヨーロッパ':2} },
+      ]},
+    ]
+  },
+};
+
+/* ====================== STATE ====================== */
+
+let state = {
+  screen: 'start',            // start | typeQuiz | typeResult | pickType | countryQuiz | countryResult
+  typeQIndex: 0,
+  typeScores: {},
+  shuffledTypeOptions: [],    // shuffled per question, built at quiz start
+  topTypes: [],
+  chosenType: null,
+  countryQIndex: 0,
+  countryScores: {},
+  shuffledCountryOptions: [],
+};
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ====================== RENDER ====================== */
+
+const cardEl = document.getElementById('card');
+const footerEl = document.getElementById('footerNote');
+
+function render(){
+  footerEl.innerHTML = '';
+  if(state.screen === 'start') return renderStart();
+  if(state.screen === 'typeQuiz') return renderTypeQuiz();
+  if(state.screen === 'typeResult') return renderTypeResult();
+  if(state.screen === 'pickType') return renderPickType();
+  if(state.screen === 'countryQuiz') return renderCountryQuiz();
+  if(state.screen === 'countryResult') return renderCountryResult();
+}
+
+function renderStart(){
+  cardEl.innerHTML = `
+    <div class="hero-emoji">🌍✈️</div>
+    <h1 class="hero-title">自分に合う<span class="hl">海外チャレンジ</span>、<br>見つけよう</h1>
+    <p class="hero-sub">全28問の質問に答えると、あなたにぴったりの海外挑戦スタイルと、<br>相性のいい国までじっくり診断します。</p>
+    <div class="hero-badges">
+      <span>🎓 大学進学</span><span>📚 語学留学</span><span>🧳 ワーホリ</span>
+      <span>🗺️ 一人旅</span><span>🤝 ボランティア</span><span>💼 インターン</span>
+    </div>
+    <button class="btn-primary" id="startBtn">診断をはじめる（所要時間 約15分）</button>
+  `;
+  document.getElementById('startBtn').onclick = () => {
+    state.typeScores = {};
+    TYPE_KEYS.forEach(k => state.typeScores[k]=0);
+    state.typeQIndex = 0;
+    state.shuffledTypeOptions = TYPE_QUESTIONS.map(q => shuffle(q.options));
+    state.screen = 'typeQuiz';
+    render();
+  };
+}
+
+function renderTypeQuiz(){
+  const idx = state.typeQIndex;
+  const q = TYPE_QUESTIONS[idx];
+  const opts = state.shuffledTypeOptions[idx];
+  const pct = Math.round((idx/TYPE_QUESTIONS.length)*100);
+  const letters = ['A','B','C','D','E','F'];
+  cardEl.innerHTML = `
+    <div class="progress-wrap">
+      <span class="progress-label">TYPE Q${idx+1}/${TYPE_QUESTIONS.length}</span>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <p class="q-text">${q.text}</p>
+    <div class="options">
+      ${opts.map((o,i)=>`<button class="option-btn" data-i="${i}"><span class="letter">${letters[i]}</span>${o.label}</button>`).join('')}
+    </div>
+  `;
+  cardEl.querySelectorAll('.option-btn').forEach(btn=>{
+    btn.onclick = () => {
+      const o = opts[parseInt(btn.dataset.i)];
+      state.typeScores[o.type] += 1;
+      if(idx+1 < TYPE_QUESTIONS.length){
+        state.typeQIndex += 1;
+        render();
+      } else {
+        finishTypeQuiz();
+      }
+    };
+  });
+}
+
+function finishTypeQuiz(){
+  const max = Math.max(...Object.values(state.typeScores));
+  state.topTypes = TYPE_KEYS.filter(k => state.typeScores[k] === max);
+  state.screen = 'typeResult';
+  render();
+}
+
+function renderTypeResult(){
+  const multi = state.topTypes.length > 1;
+  const listHtml = state.topTypes.map(t => `${TYPE_META[t].emoji} ${TYPE_META[t].label}`).join('　／　');
+  cardEl.innerHTML = `
+    <div class="pass">
+      <div class="pass-top">
+        <div class="pass-eyebrow"><span>BOARDING PASS · TYPE DIAGNOSIS</span><span class="plane-mini">✈️</span></div>
+        <div class="pass-type">${listHtml}</div>
+        <div class="pass-sub">${multi ? 'あなたには複数のタイプが同じくらい向いています' : 'あなたに一番向いている海外挑戦タイプです'}</div>
+      </div>
+      <div class="pass-divider"></div>
+      <div class="pass-bottom">
+        <div class="pass-field">FROM<b>あなたの「好き」</b></div>
+        <div class="pass-field">TO<b>次の一歩</b></div>
+        <div class="pass-field">CLASS<b>CHALLENGE</b></div>
+      </div>
+    </div>
+    ${state.topTypes.map(t=>`
+      <div class="result-desc-card">
+        <span class="lbl">${TYPE_META[t].emoji} ${TYPE_META[t].label}</span>
+        ${TYPE_RESULT_DESC[t]}
+      </div>
+    `).join('')}
+    <button class="btn-primary" id="toCountryBtn">${multi ? 'タイプを選んで国診断へ進む' : 'このタイプで国診断に進む'}</button>
+    <button class="btn-secondary" id="restartBtn1">最初からやり直す</button>
+  `;
+  document.getElementById('toCountryBtn').onclick = () => {
+    if(multi){
+      state.screen = 'pickType';
+    } else {
+      state.chosenType = state.topTypes[0];
+      startCountryQuiz();
+      return;
+    }
+    render();
+  };
+  document.getElementById('restartBtn1').onclick = resetAll;
+}
+
+function renderPickType(){
+  cardEl.innerHTML = `
+    <p class="q-text">どちらのタイプで国診断を進めますか？</p>
+    <div class="type-pick-grid">
+      ${state.topTypes.map(t=>`
+        <button class="type-pick-btn" data-t="${t}">
+          <span class="emoji">${TYPE_META[t].emoji}</span>
+          <span class="name">${TYPE_META[t].label}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+  cardEl.querySelectorAll('.type-pick-btn').forEach(btn=>{
+    btn.onclick = () => {
+      state.chosenType = btn.dataset.t;
+      startCountryQuiz();
+    };
+  });
+}
+
+function startCountryQuiz(){
+  const data = COUNTRY_DATA[state.chosenType];
+  state.countryScores = {};
+  data.countries.forEach(c => state.countryScores[c] = 0);
+  state.countryQIndex = 0;
+  state.shuffledCountryOptions = data.questions.map(q => shuffle(q.options));
+  state.screen = 'countryQuiz';
+  render();
+}
+
+function renderCountryQuiz(){
+  const data = COUNTRY_DATA[state.chosenType];
+  const idx = state.countryQIndex;
+  const q = data.questions[idx];
+  const opts = state.shuffledCountryOptions[idx];
+  const pct = Math.round((idx/data.questions.length)*100);
+  const letters = ['A','B','C','D'];
+  cardEl.innerHTML = `
+    <div class="progress-wrap">
+      <span class="progress-label">${TYPE_META[state.chosenType].emoji} COUNTRY Q${idx+1}/${data.questions.length}</span>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <p class="q-text">${q.text}</p>
+    <div class="options">
+      ${opts.map((o,i)=>`<button class="option-btn" data-i="${i}"><span class="letter">${letters[i]}</span>${o.label}</button>`).join('')}
+    </div>
+  `;
+  cardEl.querySelectorAll('.option-btn').forEach(btn=>{
+    btn.onclick = () => {
+      const o = opts[parseInt(btn.dataset.i)];
+      Object.keys(o.scores).forEach(c => { state.countryScores[c] += o.scores[c]; });
+      if(idx+1 < data.questions.length){
+        state.countryQIndex += 1;
+        render();
+      } else {
+        finishCountryQuiz();
+      }
+    };
+  });
+}
+
+function finishCountryQuiz(){
+  state.screen = 'countryResult';
+  render();
+}
+
+function renderCountryResult(){
+  const data = COUNTRY_DATA[state.chosenType];
+  const max = Math.max(...Object.values(state.countryScores));
+  const topCountries = data.countries.filter(c => state.countryScores[c] === max).slice(0,2);
+  const meta = TYPE_META[state.chosenType];
+  cardEl.innerHTML = `
+    <div class="pass">
+      <div class="pass-top">
+        <div class="pass-eyebrow"><span>BOARDING PASS · COUNTRY DIAGNOSIS</span><span class="plane-mini">✈️</span></div>
+        <div class="pass-type">${topCountries.join('　／　')}</div>
+        <div class="pass-sub">${meta.emoji} ${meta.label}タイプのあなたに合う渡航先です</div>
+      </div>
+      <div class="pass-divider"></div>
+      <div class="pass-bottom">
+        <div class="pass-field">TYPE<b>${meta.code}</b></div>
+        <div class="pass-field">DESTINATION<b>${topCountries[0]}</b></div>
+        <div class="pass-field">STATUS<b>READY</b></div>
+      </div>
+    </div>
+    ${topCountries.map(c=>`
+      <div class="result-desc-card">
+        <span class="lbl">🌏 ${c}</span>
+        ${data.desc[c]}
+      </div>
+    `).join('')}
+    <button class="btn-primary" id="restartBtn2">もう一度診断する</button>
+  `;
+  document.getElementById('restartBtn2').onclick = resetAll;
+}
+
+function resetAll(){
+  state = {
+    screen: 'start', typeQIndex:0, typeScores:{}, shuffledTypeOptions:[],
+    topTypes:[], chosenType:null, countryQIndex:0, countryScores:{}, shuffledCountryOptions:[],
+  };
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

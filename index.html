@@ -162,6 +162,13 @@
     font-size:13.5px; line-height:1.85; color:var(--ink);
   }
   .result-desc-card .lbl{font-size:11px; font-weight:800; color:var(--coral); letter-spacing:0.05em; margin-bottom:6px; display:block;}
+  .why-box{margin-top:12px; padding-top:12px; border-top:1.5px dashed var(--line);}
+  .why-title{font-size:11.5px; font-weight:800; color:var(--sky-deep); margin-bottom:6px;}
+  .why-list{list-style:none; display:flex; flex-direction:column; gap:5px;}
+  .why-list li{
+    font-size:12.5px; line-height:1.6; color:var(--ink); background:#fff;
+    border-radius:10px; padding:8px 10px; border:1px solid var(--line);
+  }
 
   .type-pick-grid{display:flex; flex-direction:column; gap:10px; margin-bottom:6px;}
   .type-pick-btn{
@@ -740,6 +747,7 @@ let state = {
   countryQIndex: 0,
   countryScores: {},
   shuffledCountryOptions: [],
+  countryAnswers: [],   // {qText, label, scores} for each answered country question, used to explain the result
 };
 
 function shuffle(arr){
@@ -889,6 +897,7 @@ function startCountryQuiz(){
   data.countries.forEach(c => state.countryScores[c] = 0);
   state.countryQIndex = 0;
   state.shuffledCountryOptions = data.questions.map(q => shuffle(q.options));
+  state.countryAnswers = [];
   state.screen = 'countryQuiz';
   render();
 }
@@ -914,6 +923,7 @@ function renderCountryQuiz(){
     btn.onclick = () => {
       const o = opts[parseInt(btn.dataset.i)];
       Object.keys(o.scores).forEach(c => { state.countryScores[c] += o.scores[c]; });
+      state.countryAnswers.push({ qText:q.text, label:o.label, scores:o.scores });
       if(idx+1 < data.questions.length){
         state.countryQIndex += 1;
         render();
@@ -927,6 +937,15 @@ function renderCountryQuiz(){
 function finishCountryQuiz(){
   state.screen = 'countryResult';
   render();
+}
+
+function reasonsForCountry(country){
+  // Pull every answered question whose chosen option actually scored points toward this country,
+  // sorted by how much it contributed (higher weight first) so the strongest reasons show up top.
+  return state.countryAnswers
+    .filter(a => (a.scores[country] || 0) > 0)
+    .sort((a,b) => (b.scores[country]||0) - (a.scores[country]||0))
+    .map(a => a.label);
 }
 
 function renderCountryResult(){
@@ -948,12 +967,22 @@ function renderCountryResult(){
         <div class="pass-field">STATUS<b>READY</b></div>
       </div>
     </div>
-    ${topCountries.map(c=>`
+    ${topCountries.map(c=>{
+      const reasons = reasonsForCountry(c);
+      return `
       <div class="result-desc-card">
         <span class="lbl">🌏 ${c}</span>
         ${data.desc[c]}
+        ${reasons.length ? `
+          <div class="why-box">
+            <div class="why-title">✅ あなたの回答から見えた理由</div>
+            <ul class="why-list">
+              ${reasons.map(r=>`<li>「${r}」と答えたから</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
       </div>
-    `).join('')}
+    `;}).join('')}
     <button class="btn-primary" id="restartBtn2">もう一度診断する</button>
   `;
   document.getElementById('restartBtn2').onclick = resetAll;
@@ -963,6 +992,7 @@ function resetAll(){
   state = {
     screen: 'start', typeQIndex:0, typeScores:{}, shuffledTypeOptions:[],
     topTypes:[], chosenType:null, countryQIndex:0, countryScores:{}, shuffledCountryOptions:[],
+    countryAnswers:[],
   };
   render();
 }
